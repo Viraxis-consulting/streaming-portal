@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Portal de Streaming</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#6c5ce7" />
+  <link rel="icon" type="image/svg+xml" href="./streaming-portal.svg" />
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #151922;
+      --card: #1b2130;
+      --card-hover: #242c3d;
+      --text: #eef2f8;
+      --muted: #9aa5b8;
+      --accent: #6c5ce7;
+      --accent2: #00d2a8;
+      --shadow: 0 8px 30px rgba(0,0,0,.45);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at 20% 0%, #1a2233 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 24px 60px;
+    }
+
+    header {
+      max-width: 1100px;
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 {
+      font-size: 1.9rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand h1 .logo {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: grid; place-items: center;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .brand p { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
+
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid #2c3446;
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      transition: .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button:hover { background: var(--card-hover); border-color: var(--accent); }
+    button.primary { background: var(--accent); border-color: var(--accent); }
+    button.primary:hover { background: #7d6ef0; }
+
+    .hint {
+      max-width: 1100px;
+      margin: 0 auto 22px;
+      background: var(--panel);
+      border: 1px solid #2c3446;
+      border-left: 4px solid var(--accent2);
+      padding: 12px 16px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .hint strong { color: var(--text); }
+
+    .grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 18px;
+    }
+
+    .service {
+      position: relative;
+      background: var(--card);
+      border: 1px solid #2c3446;
+      border-radius: 16px;
+      padding: 0 0 20px;
+      text-decoration: none;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      transition: transform .18s ease, border-color .18s, background .18s;
+      overflow: hidden;
+    }
+    .service:hover {
+      transform: translateY(-4px);
+      background: var(--card-hover);
+      border-color: var(--color, var(--accent));
+    }
+
+    /* --- Vista preliminar (portada) --- */
+    .preview {
+      position: relative;
+      height: 120px;
+      overflow: hidden;
+      background: #0a0d14;
+    }
+    .preview svg { width: 100%; height: 100%; display: block; transition: transform .35s ease; }
+    .service:hover .preview svg { transform: scale(1.08); }
+    .preview::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--card) 0%, rgba(0,0,0,0) 55%);
+    }
+    .preview .badge {
+      position: absolute; top: 12px; left: 14px; z-index: 2;
+      background: var(--color, var(--accent));
+      color: #fff;
+      font-size: 0.68rem; font-weight: 700;
+      padding: 4px 9px; border-radius: 20px;
+      letter-spacing: .3px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.5);
+    }
+    .preview .play {
+      position: absolute; inset: 0; z-index: 2;
+      display: grid; place-items: center;
+      opacity: 0; transition: opacity .25s;
+    }
+    .service:hover .preview .play { opacity: 1; }
+    .preview .play span {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: rgba(255,255,255,.92);
+      color: #111;
+      display: grid; place-items: center;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 18px rgba(0,0,0,.6);
+    }
+
+    .card-body { padding: 16px 20px 0; }
+
+    .more {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height .3s ease, opacity .25s ease, margin .3s;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .service:hover .more { max-height: 90px; opacity: 1; margin-top: 10px; }
+
+    .icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 0.95rem;
+      margin-bottom: 10px;
+      background: var(--color, var(--accent));
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .service h2 { font-size: 1.05rem; margin-bottom: 4px; }
+    .service .cat { color: var(--muted); font-size: 0.78rem; }
+    .service .arrow {
+      position: absolute; right: 18px; bottom: 18px;
+      color: var(--muted); font-size: 1.1rem;
+      transition: transform .18s;
+    }
+    .service:hover .arrow { transform: translateX(4px); color: var(--color); }
+
+    .key {
+      position: absolute; top: 12px; right: 14px; z-index: 2;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 6px;
+      font-size: 0.7rem;
+      padding: 3px 7px;
+      color: #fff;
+    }
+
+    footer {
+      max-width: 1100px;
+      margin: 40px auto 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.6;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1><span class="logo">▶</span> Mi Portal de Streaming</h1>
+      <p>Todos tus servicios en un solo lugar · Pensado para Chromebook</p>
+    </div>
+    <div class="controls">
+      <button id="btnFull">⛶ Pantalla completa</button>
+      <button id="btnHome" class="primary" style="display:none">← Inicio</button>
+    </div>
+  </header>
+
+  <div class="hint" id="hint">
+    💡 <strong>Cómo usarlo:</strong> pasa el cursor sobre una tarjeta para ver su vista preliminar; haz clic y el servicio se abre directamente en su propia app/pestaña, con tu sesión ya iniciada.
+    Usa las teclas <strong>1–7</strong> para abrirlo al instante. El portal <strong>nunca pide ni guarda tus contraseñas</strong>.
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    Portal local · No almacena contraseñas ni datos personales.<br />
+    Cada servicio se abre con tu propia sesión ya iniciada en el navegador.
+  </footer>
+
+  <script>
+    // Portadas SVG cinematográficas (generadas por código, sin archivos externos).
+    const ART = {
+      netflix: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><radialGradient id="g1" cx="50%" cy="35%"><stop offset="0" stop-color="#4a0d12"/><stop offset="1" stop-color="#05070b"/></radialGradient>
+        <linearGradient id="r1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e50914" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient></defs>
+        <rect width="400" height="220" fill="url(#g1)"/>
+        <path d="M0 180 L90 110 L160 160 L250 70 L340 150 L400 100 L400 220 L0 220Z" fill="#000" opacity=".55"/>
+        <circle cx="300" cy="60" r="46" fill="url(#r1)"/>
+        <path d="M120 220 L170 90 L185 90 L160 220Z" fill="#e50914" opacity=".18"/>
+        <path d="M205 220 L255 80 L268 80 L245 220Z" fill="#e50914" opacity=".12"/>
+      </svg>`,
+      disney: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1a4a"/><stop offset=".6" stop-color="#123b8f"/><stop offset="1" stop-color="#050a1c"/></linearGradient>
+        <radialGradient id="s2" cx="70%" cy="25%"><stop offset="0" stop-color="#8ec5ff" stop-opacity=".8"/><stop offset="1" stop-color="#8ec5ff" stop-opacity="0"/></radialGradient></defs>
+        <rect width="400" height="220" fill="url(#g2)"/>
+        <circle cx="290" cy="55" r="90" fill="url(#s2)"/>
+        <path d="M0 175 L70 130 L140 165 L210 110 L280 160 L340 120 L400 150 L400 220 L0 220Z" fill="#0a1230"/>
+        <path d="M150 175 L175 120 L183 120 L205 175Z M210 175 L232 105 L240 105 L262 175Z" fill="#1d3f8f" opacity=".7"/>
+        <g fill="#bfe0ff" opacity=".7"><circle cx="60" cy="40" r="1.6"/><circle cx="120" cy="70" r="1.2"/><circle cx="200" cy="35" r="2"/><circle cx="260" cy="85" r="1.4"/><circle cx="350" cy="45" r="1.8"/></g>
+      </svg>`,
+      hbo: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><radialGradient id="g3" cx="50%" cy="30%"><stop offset="0" stop-color="#3a1d6e"/><stop offset="1" stop-color="#07050f"/></radialGradient>
+        <linearGradient id="p3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8b5cf6" stop-opacity=".5"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient></defs>
+        <rect width="400" height="220" fill="url(#g3)"/>
+        <path d="M0 0 L400 0 L400 60 L0 160Z" fill="url(#p3)" opacity=".3"/>
+        <circle cx="200" cy="100" r="58" fill="none" stroke="#a78bfa" stroke-width="2" opacity=".55"/>
+        <circle cx="200" cy="100" r="40" fill="none" stroke="#c4b5fd" stroke-width="1" opacity=".4"/>
+        <path d="M0 190 L80 150 L150 185 L230 130 L310 175 L400 140 L400 220 L0 220Z" fill="#05030c"/>
+        <path d="M185 100 L215 100 L215 130 L185 130Z" fill="#8b5cf6" opacity=".35"/>
+      </svg>`,
+      apple: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f2937"/><stop offset=".5" stop-color="#374151"/><stop offset="1" stop-color="#0b0f16"/></linearGradient>
+        <radialGradient id="l4" cx="50%" cy="40%"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+        <rect width="400" height="220" fill="url(#g4)"/>
+        <ellipse cx="200" cy="95" rx="120" ry="80" fill="url(#l4)"/>
+        <rect x="150" y="35" width="100" height="150" rx="12" fill="#0b0f16" opacity=".85"/>
+        <rect x="157" y="42" width="86" height="136" rx="7" fill="#111827"/>
+        <path d="M170 150 L200 95 L230 150Z" fill="#e5e7eb" opacity=".18"/>
+        <circle cx="200" cy="80" r="14" fill="#e5e7eb" opacity=".22"/>
+      </svg>`,
+      azteca: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a0f18"/><stop offset=".55" stop-color="#d71f2d"/><stop offset="1" stop-color="#2a0509"/></linearGradient></defs>
+        <rect width="400" height="220" fill="url(#g5)"/>
+        <g stroke="#fff" stroke-width="2" fill="none" opacity=".18">
+          <path d="M200 40 L260 75 L260 145 L200 180 L140 145 L140 75Z"/>
+          <path d="M200 70 L235 90 L235 130 L200 150 L165 130 L165 90Z"/>
+        </g>
+        <path d="M0 175 L100 140 L200 170 L300 130 L400 165 L400 220 L0 220Z" fill="#1a0306" opacity=".8"/>
+        <circle cx="200" cy="105" r="26" fill="#fff" opacity=".12"/>
+      </svg>`,
+      pluto: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><radialGradient id="g6" cx="60%" cy="35%"><stop offset="0" stop-color="#ff6a2b"/><stop offset=".6" stop-color="#c2330a"/><stop offset="1" stop-color="#160804"/></radialGradient></defs>
+        <rect width="400" height="220" fill="url(#g6)"/>
+        <circle cx="255" cy="80" r="42" fill="#ffb37a" opacity=".35"/>
+        <circle cx="255" cy="80" r="26" fill="#ffd9b8" opacity=".45"/>
+        <path d="M0 185 L80 150 L160 180 L240 135 L320 175 L400 145 L400 220 L0 220Z" fill="#1a0803"/>
+        <g fill="#ffb37a" opacity=".5"><circle cx="70" cy="45" r="2"/><circle cx="140" cy="75" r="1.5"/><circle cx="190" cy="40" r="1.8"/></g>
+      </svg>`,
+      vix: `<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="g7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b0f7a"/><stop offset=".55" stop-color="#6d28d9"/><stop offset="1" stop-color="#0d0418"/></linearGradient>
+        <radialGradient id="l7" cx="50%" cy="50%"><stop offset="0" stop-color="#c4b5fd" stop-opacity=".7"/><stop offset="1" stop-color="#c4b5fd" stop-opacity="0"/></radialGradient></defs>
+        <rect width="400" height="220" fill="url(#g7)"/>
+        <ellipse cx="200" cy="100" rx="110" ry="70" fill="url(#l7)"/>
+        <path d="M200 45 L245 100 L200 155 L155 100Z" fill="#ede9fe" opacity=".28"/>
+        <path d="M200 65 L228 100 L200 135 L172 100Z" fill="#fff" opacity=".35"/>
+        <path d="M0 190 L90 150 L170 185 L260 140 L340 180 L400 155 L400 220 L0 220Z" fill="#0a0212"/>
+      </svg>`
+    };
+
+    const SERVICIOS = [
+      { key: "1", name: "Netflix",   cat: "Series y películas", color: "#e50914", short: "N",   badge: "SERIES",  desc: "Series originales, películas y documentales a demanda.", url: "https://www.netflix.com", art: ART.netflix },
+      { key: "2", name: "Disney+",   cat: "Series y películas", color: "#113ccf", short: "D+",  badge: "FAMILIAR", desc: "El universo Disney, Pixar, Marvel, Star Wars y National Geographic.", url: "https://www.disneyplus.com", art: ART.disney },
+      { key: "3", name: "HBO Max",   cat: "Series y películas", color: "#8b5cf6", short: "HBO", badge: "PREMIUM", desc: "Series premiadas, cine y contenido exclusivo de Warner Bros.", url: "https://www.max.com", art: ART.hbo },
+      { key: "4", name: "Apple TV+", cat: "Series y películas", color: "#111827", short: "tv+", badge: "ORIGINAL",desc: "Producciones originales de Apple con estrenos semanales.", url: "https://tv.apple.com", art: ART.apple },
+      { key: "5", name: "TV Azteca", cat: "TV en vivo",         color: "#d71f2d", short: "AZ",  badge: "EN VIVO", desc: "Noticias, novelas y programas en vivo de TV Azteca.", url: "https://www.azteca.com", art: ART.azteca },
+      { key: "6", name: "Pluto TV",  cat: "TV en vivo · Gratis", color: "#ff4b12", short: "P",   badge: "GRATIS", desc: "Cientos de canales en vivo y películas sin costo.", url: "https://pluto.tv", art: ART.pluto },
+      { key: "7", name: "VIX",       cat: "Series y novelas",   color: "#6d28d9", short: "vix", badge: "NOVELAS",desc: "Novelas, series y contenido en español y portugués.", url: "https://www.vix.com", art: ART.vix }
+    ];
+
+    const grid = document.getElementById("grid");
+    let ultimoAbierto = null;
+
+    // Tarjetas: cada una abre el servicio en su propia app/pestaña oficial.
+    SERVICIOS.forEach(s => {
+      const a = document.createElement("a");
+      a.href = s.url;
+      a.className = "service";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.style.setProperty("--color", s.color);
+      a.innerHTML = `
+        <span class="key">${s.key}</span>
+        <div class="preview">
+          ${s.art}
+          <span class="badge">${s.badge}</span>
+          <div class="play"><span>↗</span></div>
+        </div>
+        <div class="card-body">
+          <div class="icon">${s.short}</div>
+          <h2>${s.name}</h2>
+          <div class="cat">${s.cat}</div>
+          <div class="more">${s.desc}</div>
+        </div>
+        <div class="arrow">↗</div>
+      `;
+      a.addEventListener("click", () => {
+        ultimoAbierto = s.key;
+        try { localStorage.setItem("ultimoServicio", s.key); } catch (e) {}
+      });
+      grid.appendChild(a);
+    });
+
+    function abrir(s) {
+      ultimoAbierto = s.key;
+      try { localStorage.setItem("ultimoServicio", s.key); } catch (e) {}
+      window.open(s.url, "_blank", "noopener,noreferrer");
+    }
+
+    document.getElementById("btnFull").onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    };
+
+    // Atajos de teclado 1-7: abrir el servicio directo en su app.
+    document.addEventListener("keydown", e => {
+      const s = SERVICIOS.find(x => x.key === e.key);
+      if (s) abrir(s);
+    });
+
+    // Registrar service worker (solo funciona bajo https:// o localhost).
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

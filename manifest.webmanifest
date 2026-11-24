@@ -1,0 +1,19 @@
+{
+  "name": "Mi Portal de Streaming",
+  "short_name": "Streaming",
+  "description": "Netflix, Disney+, HBO Max, Apple TV+, TV Azteca, Pluto TV y VIX en un solo lugar",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0d12",
+  "theme_color": "#6c5ce7",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./streaming-portal.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

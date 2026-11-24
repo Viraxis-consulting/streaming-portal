@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Mi Portal de Streaming
+GenericName=Portal de Streaming
+Comment=Netflix, Disney+, HBO Max, Apple TV+, TV Azteca, Pluto TV y VIX en un solo lugar
+Exec=/home/rabrahamlopez/Default Project/streaming-portal/lanzar.sh
+Icon=/home/rabrahamlopez/Default Project/streaming-portal/streaming-portal.svg
+Terminal=false
+Categories=AudioVideo;Video;
+StartupWMClass=streaming-portal
