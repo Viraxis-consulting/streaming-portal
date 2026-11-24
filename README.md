@@ -34,3 +34,4 @@ git push
 ```
 
 GitHub Pages publica automáticamente desde la rama `main` (carpeta raíz).
+# streaming-portal
